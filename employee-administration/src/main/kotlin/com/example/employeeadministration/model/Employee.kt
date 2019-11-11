@@ -5,8 +5,6 @@ import com.fasterxml.jackson.annotation.JsonTypeName
 import java.math.BigDecimal
 import javax.persistence.Entity
 
-@JsonTypeName("Employee")
-@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY)
 @Entity
 class Employee(
         id: Long?,

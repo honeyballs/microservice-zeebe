@@ -1,7 +1,6 @@
 package com.example.employeeadministration.controller
 
-import com.example.employeeadministration.model.Employee
-import com.example.employeeadministration.model.EmployeeDto
+import com.example.employeeadministration.model.dto.EmployeeDto
 import com.example.employeeadministration.services.EmployeeService
 import org.springframework.http.ResponseEntity
 import org.springframework.http.ResponseEntity.ok

@@ -1,9 +1,6 @@
-package com.example.employeeadministration.config
+package com.example.projectadministration.configuration
 
-import com.example.employeeadministration.jobhandlers.EmployeeJobHandlers
-import com.example.employeeadministration.model.AggregateState
-import com.example.employeeadministration.model.Employee
-import com.example.employeeadministration.repositories.EmployeeRepository
+import com.example.projectadministration.jobhandlers.EmployeeJobHandlers
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 import io.zeebe.client.ZeebeClient
@@ -24,10 +21,20 @@ class JobWorkerCreation {
     lateinit var handlers: EmployeeJobHandlers
 
     @Bean
-    fun setEmployeeActiveWorker(): JobWorker {
-        println("Activation Worker created")
+    fun setEmployeeCreationWorker(): JobWorker {
+        println("Synchronisation Worker created")
         return client.newWorker()
-                .jobType("activate-employee")
+                .jobType("project-sync-employee")
+                .handler(JobHandler(handlers.synchronizeEmployees))
+                .fetchVariables("employee")
+                .open()
+    }
+
+    @Bean
+    fun setEmployeeActiveWorker(): JobWorker {
+        println("Synchronisation Worker created")
+        return client.newWorker()
+                .jobType("activate-project-employee")
                 .handler(JobHandler(handlers.activateEmployee))
                 .fetchVariables("employee")
                 .open()
@@ -35,9 +42,9 @@ class JobWorkerCreation {
 
     @Bean
     fun setEmployeeFailedWorker(): JobWorker {
-        println("Failure Worker created")
+        println("Synchronisation Worker created")
         return client.newWorker()
-                .jobType("fail-employee")
+                .jobType("fail-project-employee")
                 .handler(JobHandler(handlers.failEmployee))
                 .fetchVariables("employee")
                 .open()

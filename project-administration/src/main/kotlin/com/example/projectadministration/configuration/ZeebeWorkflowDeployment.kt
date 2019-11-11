@@ -1,4 +1,4 @@
-package com.example.employeeadministration.config
+package com.example.projectadministration.configuration
 
 import io.zeebe.client.ZeebeClient
 import org.springframework.beans.factory.annotation.Autowired
@@ -13,16 +13,16 @@ class ZeebeWorkflowDeployment {
     @Autowired
     lateinit var client: ZeebeClient
 
-    @Bean
-    fun deployWorkflows(): CommandLineRunner {
-        return CommandLineRunner {
-            val deploymentEvent = client.newDeployCommand()
-                    .addResourceFromClasspath("synchronize-employee.bpmn")
-                    .send()
-                    .join()
-            println("Workflows deployed")
-        }
-    }
+//    @Bean
+//    fun deployWorkflows(): CommandLineRunner {
+//        return CommandLineRunner {
+//            val deploymentEvent = client.newDeployCommand()
+//                    .addResourceFromClasspath("employee-created.bpmn")
+//                    .send()
+//                    .join()
+//            println("Workflows deployed")
+//        }
+//    }
 
     @PreDestroy
     fun closeClient() {

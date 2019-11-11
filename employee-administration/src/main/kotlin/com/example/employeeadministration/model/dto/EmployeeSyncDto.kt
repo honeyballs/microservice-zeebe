@@ -1,5 +1,6 @@
-package com.example.employeeadministration.model
+package com.example.employeeadministration.model.dto
 
+import com.example.employeeadministration.model.AggregateState
 import java.math.BigDecimal
 
 data class EmployeeSyncDto(

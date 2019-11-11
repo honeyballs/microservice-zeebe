@@ -1,4 +1,4 @@
-package com.example.employeeadministration.model
+package com.example.projectadministration.model
 
 import com.fasterxml.jackson.annotation.JsonSubTypes
 import com.fasterxml.jackson.annotation.JsonTypeInfo

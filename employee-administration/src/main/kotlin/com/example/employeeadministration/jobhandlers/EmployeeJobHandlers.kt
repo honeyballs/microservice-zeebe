@@ -2,6 +2,7 @@ package com.example.employeeadministration.jobhandlers
 
 import com.example.employeeadministration.model.AggregateState
 import com.example.employeeadministration.model.Employee
+import com.example.employeeadministration.model.dto.EmployeeSyncDto
 import com.example.employeeadministration.repositories.EmployeeRepository
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
@@ -21,25 +22,30 @@ class EmployeeJobHandlers {
     @Autowired
     lateinit var employeeRepository: EmployeeRepository
 
-    val handleEmployeeActivation: (JobClient, ActivatedJob) -> Unit = { jobClient: JobClient, job: ActivatedJob ->
-        println("EXECUTING JOB")
-        val employeeJson = job.variablesAsMap["employee"] as String
-        var employee = mapper.readValue<Employee>(employeeJson)
-        var dbEmployeeOptional = employeeRepository.findById(employee.id!!)
-        val result = emptyMap<String, String>()
-        if (dbEmployeeOptional.isPresent) {
-            var dbEmployee = dbEmployeeOptional.get()
-            dbEmployee.state = AggregateState.ACTIVE
-            employee = employeeRepository.save(dbEmployee)
-            result.plus(Pair("employee", mapper.writeValueAsString(employee)))
-            jobClient.newCompleteCommand(job.key)
-                    .variables(result)
-                    .send()
-                    .join()
-        } else {
-            jobClient.newFailCommand(job.key)
-        }
+    val activateEmployee: (JobClient, ActivatedJob) -> Unit = {jobClient: JobClient, job: ActivatedJob ->
+        println("EXECUTING ACTIVATION JOB")
+        val employeeId = mapper.readValue<EmployeeSyncDto>(job.variablesAsMap["employee"] as String).id
+        val employee = employeeRepository.findById(employeeId).orElseThrow()
+        employee.state = AggregateState.ACTIVE
+        val result = mapOf("employee" to mapper.writeValueAsString(employeeRepository.save(employee)))
+        jobClient.newCompleteCommand(job.key)
+                .variables(result)
+                .send()
+                .join()
     }
+
+    val failEmployee: (JobClient, ActivatedJob) -> Unit = {jobClient: JobClient, job: ActivatedJob ->
+        println("EXECUTING FAILURE JOB")
+        val employeeId = mapper.readValue<EmployeeSyncDto>(job.variablesAsMap["employee"] as String).id
+        val employee = employeeRepository.findById(employeeId).orElseThrow()
+        employee.state = AggregateState.FAILED
+        val result = mapOf("employee" to mapper.writeValueAsString(employeeRepository.save(employee)))
+        jobClient.newCompleteCommand(job.key)
+                .variables(result)
+                .send()
+                .join()
+    }
+
 
 }
 

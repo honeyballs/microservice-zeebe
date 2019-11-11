@@ -2,12 +2,11 @@ package com.example.employeeadministration.services
 
 import com.example.employeeadministration.model.AggregateState
 import com.example.employeeadministration.model.Employee
-import com.example.employeeadministration.model.EmployeeDto
-import com.example.employeeadministration.model.EmployeeSyncDto
+import com.example.employeeadministration.model.dto.EmployeeDto
+import com.example.employeeadministration.model.dto.EmployeeSyncDto
 import com.example.employeeadministration.repositories.EmployeeRepository
 import com.fasterxml.jackson.databind.ObjectMapper
 import org.springframework.stereotype.Service
-import org.springframework.transaction.annotation.Transactional
 
 @Service
 class EmployeeService(
@@ -17,10 +16,10 @@ class EmployeeService(
 ) {
 
     fun saveEmployeeWithWorkflow(employee: Employee, operation: Operation): Employee {
+        employee.state = AggregateState.PENDING
         val savedEmployee = employeeRepository.save(employee)
-        savedEmployee.state = AggregateState.PENDING
-        val pair = "employee" to objectMapper.writeValueAsString(mapToSyncDto(employee))
-        workflowService.createWorkflowInstance(mapOf(pair), "employee-${operation.value}")
+        val pair = "employee" to objectMapper.writeValueAsString(mapToSyncDto(savedEmployee))
+        workflowService.createWorkflowInstance(mapOf(pair), "synchronize-employee")
         return savedEmployee
     }
 
