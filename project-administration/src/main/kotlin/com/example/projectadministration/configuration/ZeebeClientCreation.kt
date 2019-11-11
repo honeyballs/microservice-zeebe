@@ -4,6 +4,8 @@ import io.zeebe.client.ZeebeClient
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 
+const val datePattern = "dd.MM.yyyy"
+
 @Configuration
 class ZeebeClientCreation {
 
