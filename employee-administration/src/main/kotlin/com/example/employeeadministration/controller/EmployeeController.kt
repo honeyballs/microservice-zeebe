@@ -16,12 +16,12 @@ class EmployeeController(val employeeService: EmployeeService) {
         return ok(employeeService.getAllEmployees())
     }
 
-    @GetMapping("url/{department}")
+    @GetMapping("$url/department/{department}")
     fun getAllEmployeesOfDepartment(@PathVariable("department") department: String): ResponseEntity<List<EmployeeDto>> {
         return ok(employeeService.getEmployeesByDepartment(department))
     }
 
-    @GetMapping("url/{id}")
+    @GetMapping("$url/{id}")
     fun getEmployeeById(@PathVariable("id") id: Long): ResponseEntity<EmployeeDto> {
         return ok(employeeService.getEmployeeById(id))
     }
@@ -36,7 +36,7 @@ class EmployeeController(val employeeService: EmployeeService) {
         return ok(employeeService.updateEmployee(employeeDto))
     }
 
-    @DeleteMapping("url/{id}")
+    @DeleteMapping("$url/{id}")
     fun updateEmployee(@PathVariable("id") id: Long): ResponseEntity<EmployeeDto> {
         return ok(employeeService.deleteEmployee(id))
     }

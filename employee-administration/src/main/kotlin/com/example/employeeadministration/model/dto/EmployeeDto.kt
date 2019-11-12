@@ -4,7 +4,7 @@ import com.example.employeeadministration.model.AggregateState
 import java.math.BigDecimal
 
 data class EmployeeDto(
-        val id: Long,
+        var id: Long?,
         val firstname: String,
         val lastname: String,
         val address: String,
@@ -13,5 +13,5 @@ data class EmployeeDto(
         val department: String,
         val title: String,
         val hourlyRate: BigDecimal,
-        val state: AggregateState = AggregateState.PENDING
+        val state: AggregateState?
 )

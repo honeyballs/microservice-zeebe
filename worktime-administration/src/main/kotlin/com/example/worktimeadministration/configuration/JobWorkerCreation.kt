@@ -1,7 +1,7 @@
-package com.example.projectadministration.configuration
+package com.example.worktimeadministration.configuration
 
-import com.example.projectadministration.jobhandlers.EmployeeJobHandlers
-import com.example.projectadministration.jobhandlers.ProjectJobHandlers
+import com.example.worktimeadministration.jobhandlers.EmployeeJobHandlers
+import com.example.worktimeadministration.jobhandlers.ProjectJobHandlers
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 import io.zeebe.client.ZeebeClient
@@ -28,7 +28,7 @@ class JobWorkerCreation {
     fun setEmployeeSyncWorker(): JobWorker {
         println("Synchronisation Worker created")
         return client.newWorker()
-                .jobType("project-sync-employee")
+                .jobType("worktime-sync-employee")
                 .handler(JobHandler(handlers.synchronizeEmployees))
                 .fetchVariables("employee")
                 .open()
@@ -38,7 +38,7 @@ class JobWorkerCreation {
     fun setEmployeeActiveWorker(): JobWorker {
         println("Synchronisation Worker created")
         return client.newWorker()
-                .jobType("activate-project-employee")
+                .jobType("activate-worktime-employee")
                 .handler(JobHandler(handlers.activateEmployee))
                 .fetchVariables("employee")
                 .open()
@@ -48,9 +48,19 @@ class JobWorkerCreation {
     fun setEmployeeFailedWorker(): JobWorker {
         println("Synchronisation Worker created")
         return client.newWorker()
-                .jobType("fail-project-employee")
+                .jobType("fail-worktime-employee")
                 .handler(JobHandler(handlers.failEmployee))
                 .fetchVariables("employee")
+                .open()
+    }
+
+    @Bean
+    fun setProjectSyncWorker(): JobWorker {
+        println("Synchronisation Worker created")
+        return client.newWorker()
+                .jobType("worktime-sync-project")
+                .handler(JobHandler(projectHandlers.synchronizeProjects))
+                .fetchVariables("project")
                 .open()
     }
 
@@ -58,7 +68,7 @@ class JobWorkerCreation {
     fun setProjectActiveWorker(): JobWorker {
         println("Synchronisation Worker created")
         return client.newWorker()
-                .jobType("activate-project")
+                .jobType("activate-worktime-project")
                 .handler(JobHandler(projectHandlers.activateProject))
                 .fetchVariables("project")
                 .open()
@@ -68,7 +78,7 @@ class JobWorkerCreation {
     fun setProjectFailedWorker(): JobWorker {
         println("Synchronisation Worker created")
         return client.newWorker()
-                .jobType("fail-project")
+                .jobType("fail-worktime-project")
                 .handler(JobHandler(projectHandlers.failProject))
                 .fetchVariables("project")
                 .open()

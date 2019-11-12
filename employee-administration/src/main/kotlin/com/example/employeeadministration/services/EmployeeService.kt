@@ -15,16 +15,12 @@ class EmployeeService(
         val objectMapper: ObjectMapper
 ) {
 
-    fun saveEmployeeWithWorkflow(employee: Employee, operation: Operation): Employee {
+    fun saveEmployeeWithWorkflow(employee: Employee): Employee {
         employee.state = AggregateState.PENDING
         val savedEmployee = employeeRepository.save(employee)
         val pair = "employee" to objectMapper.writeValueAsString(mapToSyncDto(savedEmployee))
         workflowService.createWorkflowInstance(mapOf(pair), "synchronize-employee")
         return savedEmployee
-    }
-
-    enum class Operation(val value: String) {
-        CREATED("created"), UPDATED("updated"), DELETED("deleted")
     }
 
     fun mapToSyncDto(employee: Employee): EmployeeSyncDto {
@@ -49,16 +45,19 @@ class EmployeeService(
 
     fun createEmployee(employeeDto: EmployeeDto): EmployeeDto {
         val employee = Employee(null, employeeDto.firstname, employeeDto.lastname, employeeDto.address, employeeDto.mail, employeeDto.iban, employeeDto.department, employeeDto.title, employeeDto.hourlyRate)
-        return mapToDto(saveEmployeeWithWorkflow(employee, Operation.CREATED))
+        return mapToDto(saveEmployeeWithWorkflow(employee))
     }
 
     fun updateEmployee(employeeDto: EmployeeDto): EmployeeDto {
-        val employee = employeeRepository.findByIdAndDeletedFalse(employeeDto.id).orElseThrow()
+        val employee = employeeRepository.findByIdAndDeletedFalse(employeeDto.id!!).orElseThrow()
         if (employee.firstname != employeeDto.firstname || employee.lastname != employeeDto.lastname) {
             employee.changesName(employeeDto.firstname, employeeDto.lastname)
         }
         if (employee.address != employeeDto.address) {
             employee.moves(employeeDto.address)
+        }
+        if (employee.mail != employeeDto.mail) {
+            employee.changesMail(employeeDto.mail)
         }
         if (employee.hourlyRate != employeeDto.hourlyRate) {
             employee.adjustRate(employeeDto.hourlyRate)
@@ -66,13 +65,13 @@ class EmployeeService(
         if (employee.department != employeeDto.department) {
             employee.movesToDepartment(employeeDto.department)
         }
-        return mapToDto(saveEmployeeWithWorkflow(employee, Operation.UPDATED))
+        return mapToDto(saveEmployeeWithWorkflow(employee))
     }
 
     fun deleteEmployee(id: Long): EmployeeDto {
         val employee = employeeRepository.findByIdAndDeletedFalse(id).orElseThrow()
         employee.deleteAggregate()
-        return mapToDto(saveEmployeeWithWorkflow(employee, Operation.DELETED))
+        return mapToDto(saveEmployeeWithWorkflow(employee))
     }
 
 }

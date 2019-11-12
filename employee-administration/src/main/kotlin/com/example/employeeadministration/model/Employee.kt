@@ -29,6 +29,10 @@ class Employee(
         this.address = address
     }
 
+    fun changesMail(mail: String) {
+        this.mail = mail
+    }
+
     fun adjustRate(rate: BigDecimal) {
         this.hourlyRate = rate
     }

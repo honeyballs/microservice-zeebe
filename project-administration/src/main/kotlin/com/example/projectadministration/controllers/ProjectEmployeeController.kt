@@ -23,7 +23,7 @@ class ProjectEmployeeController(val projectEmployeeService: ProjectEmployeeServi
         return ok(projectEmployeeService.getEmployeeById(id))
     }
 
-    @GetMapping("$employeeUrl/{department}")
+    @GetMapping("$employeeUrl/department/{department}")
     fun getEmployeesByDepartment(@PathVariable("department") department: String): ResponseEntity<List<ProjectEmployeeDto>> {
         return ok(projectEmployeeService.getEmployeesByDepartment(department))
     }

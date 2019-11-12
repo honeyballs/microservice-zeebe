@@ -27,9 +27,8 @@ class EmployeeJobHandlers {
         val employeeId = mapper.readValue<EmployeeSyncDto>(job.variablesAsMap["employee"] as String).id
         val employee = employeeRepository.findById(employeeId).orElseThrow()
         employee.state = AggregateState.ACTIVE
-        val result = mapOf("employee" to mapper.writeValueAsString(employeeRepository.save(employee)))
+        employeeRepository.save(employee)
         jobClient.newCompleteCommand(job.key)
-                .variables(result)
                 .send()
                 .join()
     }
@@ -39,9 +38,8 @@ class EmployeeJobHandlers {
         val employeeId = mapper.readValue<EmployeeSyncDto>(job.variablesAsMap["employee"] as String).id
         val employee = employeeRepository.findById(employeeId).orElseThrow()
         employee.state = AggregateState.FAILED
-        val result = mapOf("employee" to mapper.writeValueAsString(employeeRepository.save(employee)))
+        employeeRepository.save(employee)
         jobClient.newCompleteCommand(job.key)
-                .variables(result)
                 .send()
                 .join()
     }

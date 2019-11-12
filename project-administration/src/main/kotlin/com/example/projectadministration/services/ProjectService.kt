@@ -18,11 +18,11 @@ class ProjectService(
         val objectMapper: ObjectMapper
 ) {
 
-    fun saveProjectWithWorkflow(project: Project, operation: Operation): Project {
+    fun saveProjectWithWorkflow(project: Project): Project {
         project.state = AggregateState.PENDING
         val savedProject = projectRepository.save(project)
         val pair = "project" to objectMapper.writeValueAsString(mapToSyncDto(savedProject))
-        workflowService.createWorkflowInstance(mapOf(pair), "project-${operation.value}")
+        workflowService.createWorkflowInstance(mapOf(pair), "synchronize-project")
         return savedProject
     }
 
@@ -72,11 +72,11 @@ class ProjectService(
     fun createProject(projectDto: ProjectDto): ProjectDto {
         val employees = employeeRepository.findAllByEmployeeIdInAndDeletedFalse(projectDto.employees.map { it.id }.toMutableSet()).toMutableSet()
         val project = Project(null, projectDto.name, projectDto.customer, projectDto.startDate, projectDto.endDate, employees)
-        return mapToDto(saveProjectWithWorkflow(project, Operation.CREATED))
+        return mapToDto(saveProjectWithWorkflow(project))
     }
 
     fun updateProject(projectDto: ProjectDto): ProjectDto {
-        val project = projectRepository.findByIdAndDeletedFalse(projectDto.id).orElseThrow()
+        val project = projectRepository.findByIdAndDeletedFalse(projectDto.id!!).orElseThrow()
         if (project.endDate != projectDto.endDate) {
             project.finishProject(projectDto.endDate!!)
         }
@@ -86,17 +86,13 @@ class ProjectService(
         project.employees.map { it.id }.filter {id ->  !projectDto.employees.map { it.id }.contains(id) }.forEach {
             project.removeEmployeeFromProject(employeeRepository.findByEmployeeIdAndDeletedFalse(it!!).orElseThrow())
         }
-        return mapToDto(saveProjectWithWorkflow(project, Operation.UPDATED))
+        return mapToDto(saveProjectWithWorkflow(project))
     }
 
     fun deleteProject(id: Long): ProjectDto {
         val project = projectRepository.findByIdAndDeletedFalse(id).orElseThrow()
         project.deleteAggregate()
-        return mapToDto(saveProjectWithWorkflow(project, Operation.DELETED))
+        return mapToDto(saveProjectWithWorkflow(project))
     }
 
-}
-
-enum class Operation(val value: String) {
-    CREATED("created"), UPDATED("updated"), DELETED("deleted")
 }

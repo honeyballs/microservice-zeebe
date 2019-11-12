@@ -1,6 +1,7 @@
 package com.example.projectadministration.model
 
 import com.example.projectadministration.model.employee.ProjectEmployee
+import java.io.Serializable
 import java.time.LocalDate
 import javax.persistence.*
 
@@ -15,10 +16,10 @@ class Project(
         @JoinTable(name="project_employees",
                 joinColumns = [JoinColumn(name= "project_id")],
                 inverseJoinColumns = [JoinColumn(name = "employee_id", referencedColumnName = "employeeId")])
-        val employees: MutableSet<ProjectEmployee>,
+        val employees: MutableSet<ProjectEmployee> = mutableSetOf(),
         deleted: Boolean = false,
         state: AggregateState = AggregateState.PENDING
-): Aggregate(id, state, deleted) {
+): Aggregate(id, state, deleted), Serializable {
 
 
     fun finishProject(date: LocalDate) {

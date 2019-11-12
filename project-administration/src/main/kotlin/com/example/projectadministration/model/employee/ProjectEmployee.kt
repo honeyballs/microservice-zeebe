@@ -1,6 +1,7 @@
 package com.example.projectadministration.model.employee
 
 import com.example.projectadministration.model.AggregateState
+import java.io.Serializable
 import javax.persistence.Entity
 import javax.persistence.GeneratedValue
 import javax.persistence.Id
@@ -16,5 +17,5 @@ data class ProjectEmployee(
         var title: String,
         var deleted: Boolean,
         var state: AggregateState
-) {
+): Serializable {
 }
