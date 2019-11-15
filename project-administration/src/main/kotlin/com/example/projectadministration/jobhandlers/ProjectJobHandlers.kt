@@ -2,20 +2,28 @@ package com.example.projectadministration.jobhandlers
 
 import com.example.projectadministration.model.AggregateState
 import com.example.projectadministration.model.dto.ProjectSyncDto
+import com.example.projectadministration.model.employee.ProjectEmployee
 import com.example.projectadministration.model.employee.dto.EmployeeSyncDto
+import com.example.projectadministration.repositories.ProjectEmployeeRepository
 import com.example.projectadministration.repositories.ProjectRepository
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 import io.zeebe.client.api.response.ActivatedJob
 import io.zeebe.client.api.worker.JobClient
 import org.springframework.stereotype.Component
+import org.springframework.transaction.UnexpectedRollbackException
+import org.springframework.transaction.annotation.Transactional
 
 @Component
-class ProjectJobHandlers(val projectRepository: ProjectRepository, val mapper: ObjectMapper) {
+class ProjectJobHandlers(
+        val projectRepository: ProjectRepository,
+        val employeeRepository: ProjectEmployeeRepository,
+        val mapper: ObjectMapper
+) {
 
     val activateProject: (JobClient, ActivatedJob) -> Unit = { jobClient: JobClient, job: ActivatedJob ->
         println("EXECUTING ACTIVATION JOB")
-        val projectId = mapProjectVariableToDto(job.variablesAsMap).id
+        val projectId = mapper.readValue<ProjectSyncDto>(job.variablesAsMap["project"] as String).id
         val project = projectRepository.findById(projectId).orElseThrow()
         project.state = AggregateState.ACTIVE
         projectRepository.save(project)
@@ -24,21 +32,43 @@ class ProjectJobHandlers(val projectRepository: ProjectRepository, val mapper: O
                 .join()
     }
 
-    val failProject: (JobClient, ActivatedJob) -> Unit = { jobClient: JobClient, job: ActivatedJob ->
-        println("EXECUTING FAILURE JOB")
-        val projectId = mapProjectVariableToDto(job.variablesAsMap).id
-        val project = projectRepository.findById(projectId).orElseThrow()
-        project.state = AggregateState.FAILED
-        projectRepository.save(project)
+    val compensateProject: (JobClient, ActivatedJob) -> Unit = { jobClient: JobClient, job: ActivatedJob ->
+        println("EXECUTING COMPENSATION JOB")
+        val variables = job.variablesAsMap
+        val projectId = mapper.readValue<ProjectSyncDto>(job.variablesAsMap["project"] as String).id
+        if (variables.containsKey("compensationProject")) {
+            handleCompensationTransactional(projectId, mapper.readValue<ProjectSyncDto>(job.variablesAsMap["compensationProject"] as String))
+        } else {
+            handleCompensationTransactional(projectId, null)
+        }
         jobClient.newCompleteCommand(job.key)
                 .send()
                 .join()
     }
 
-    fun mapProjectVariableToDto(variables: Map<String, Any>): ProjectSyncDto {
-        val employeeJson = variables["project"] as String
-        return mapper.readValue<ProjectSyncDto>(employeeJson)
+    @Transactional
+    @Throws(UnexpectedRollbackException::class, Exception::class)
+    fun handleCompensationTransactional(projectId: Long, compensationProject: ProjectSyncDto?) {
+        if (compensationProject != null) {
+            projectRepository.findById(projectId).ifPresent { project ->
+                project.endDate = compensationProject.endDate
+                // Add employees to project if necessary
+                compensationProject.employees.filter {id ->  !project.employees.map { it.employeeId }.contains(id) }.forEach {
+                    project.employees.add(employeeRepository.findByEmployeeId(it).orElseThrow())
+                }
+                // Remove employees from project if necessary
+                project.employees.map { it.id }.filter {id ->  !compensationProject.employees.map { it }.contains(id) }.forEach {
+                    project.employees.removeIf {t: ProjectEmployee -> t.employeeId == it }
+                }
+                project.deleted = compensationProject.deleted
+                project.state = AggregateState.ACTIVE
+                projectRepository.save(project)
+            }
+        } else {
+            projectRepository.findById(projectId).ifPresent {
+                projectRepository.deleteById(projectId)
+            }
+        }
     }
-
 
 }

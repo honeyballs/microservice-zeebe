@@ -10,6 +10,8 @@ spring:
     console:
       enabled: true
       path: /console
+      settings:
+        web-allow-others: true
 
 server:
   port: 8085

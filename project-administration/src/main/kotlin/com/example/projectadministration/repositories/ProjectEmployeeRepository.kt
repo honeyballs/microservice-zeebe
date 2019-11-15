@@ -8,6 +8,8 @@ import java.util.*
 @Repository
 interface ProjectEmployeeRepository: JpaRepository<ProjectEmployee, Long> {
 
+    fun deleteByEmployeeId(id: Long)
+
     fun findAllByDeletedFalse(): List<ProjectEmployee>
     fun findByEmployeeIdAndDeletedFalse(id: Long): Optional<ProjectEmployee>
     fun findByEmployeeId(id: Long): Optional<ProjectEmployee>

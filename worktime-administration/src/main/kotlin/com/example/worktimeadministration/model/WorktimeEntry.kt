@@ -107,5 +107,18 @@ class WorktimeEntry(
         this.deleted = true
     }
 
+    override fun copy(): WorktimeEntry {
+        return WorktimeEntry(
+                this.id!!,
+                this.startTime,
+                this.endTime,
+                this.pauseTimeInMinutes,
+                this.project.copy(),
+                this.employee.copy(),
+                this.description,
+                this.deleted,
+                this.state
+        )
+    }
 
 }

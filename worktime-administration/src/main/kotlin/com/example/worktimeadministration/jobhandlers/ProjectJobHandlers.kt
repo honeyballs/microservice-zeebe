@@ -2,7 +2,6 @@ package com.example.worktimeadministration.jobhandlers
 
 import com.example.worktimeadministration.model.AggregateState
 import com.example.worktimeadministration.model.employee.WorktimeEmployee
-import com.example.worktimeadministration.model.employee.dto.EmployeeSyncDto
 import com.example.worktimeadministration.model.project.WorktimeProject
 import com.example.worktimeadministration.model.project.dto.ProjectSyncDto
 import com.example.worktimeadministration.repositories.WorktimeEmployeeRepository
@@ -14,8 +13,6 @@ import io.zeebe.client.api.worker.JobClient
 import org.springframework.stereotype.Component
 import org.springframework.transaction.UnexpectedRollbackException
 import org.springframework.transaction.annotation.Transactional
-import javax.persistence.EntityManager
-import javax.persistence.PersistenceContext
 
 @Component
 class ProjectJobHandlers(
@@ -26,9 +23,9 @@ class ProjectJobHandlers(
 
     val synchronizeProjects: (JobClient, ActivatedJob) -> Unit = { jobClient, job ->
         println("EXECUTING SYNC JOB")
-        val projectDto = mapProjectVariableToDto(job.variablesAsMap)
+        val projectDto = mapper.readValue<ProjectSyncDto>(job.variablesAsMap["project"] as String)
         try {
-            handleSynchronization(projectDto)
+            handleSynchronizationTransactional(projectDto)
             val result = mapOf("worktimeProjectSynced" to true)
             jobClient.newCompleteCommand(job.key)
                     .variables(result)
@@ -46,7 +43,7 @@ class ProjectJobHandlers(
 
     val activateProject: (JobClient, ActivatedJob) -> Unit = { jobClient: JobClient, job: ActivatedJob ->
         println("EXECUTING ACTIVATION JOB")
-        val projectId = mapProjectVariableToDto(job.variablesAsMap).id
+        val projectId = mapper.readValue<ProjectSyncDto>(job.variablesAsMap["project"] as String).id
         val project = projectRepository.findById(projectId).orElseThrow()
         project.state = AggregateState.ACTIVE
         projectRepository.save(project)
@@ -55,12 +52,14 @@ class ProjectJobHandlers(
                 .join()
     }
 
-    val failProject: (JobClient, ActivatedJob) -> Unit = { jobClient: JobClient, job: ActivatedJob ->
-        println("EXECUTING FAILURE JOB")
-        val projectId = mapProjectVariableToDto(job.variablesAsMap).id
-        projectRepository.findById(projectId).ifPresent {
-            it.state = AggregateState.FAILED
-            projectRepository.save(it)
+    val compensateProject: (JobClient, ActivatedJob) -> Unit = { jobClient: JobClient, job: ActivatedJob ->
+        println("EXECUTING COMPENSATION JOB")
+        val variables = job.variablesAsMap
+        val projectId = mapper.readValue<ProjectSyncDto>(job.variablesAsMap["project"] as String).id
+        if (variables.containsKey("compensationProject")) {
+            handleCompensationTransactional(projectId, mapper.readValue<ProjectSyncDto>(job.variablesAsMap["compensationProject"] as String))
+        } else {
+            handleCompensationTransactional(projectId, null)
         }
         jobClient.newCompleteCommand(job.key)
                 .send()
@@ -69,7 +68,7 @@ class ProjectJobHandlers(
 
     @Transactional
     @Throws(UnexpectedRollbackException::class, Exception::class)
-    fun handleSynchronization(projectDto: ProjectSyncDto) {
+    fun handleSynchronizationTransactional(projectDto: ProjectSyncDto) {
         // Retrieve and update the employee or create it if it doesn't exist
         projectRepository.findById(projectDto.id).map { project ->
             project.endDate = projectDto.endDate
@@ -91,11 +90,29 @@ class ProjectJobHandlers(
         }
     }
 
-
-    fun mapProjectVariableToDto(variables: Map<String, Any>): ProjectSyncDto {
-        val employeeJson = variables["project"] as String
-        return mapper.readValue<ProjectSyncDto>(employeeJson)
+    @Transactional
+    @Throws(UnexpectedRollbackException::class, Exception::class)
+    fun handleCompensationTransactional(projectId: Long, compensationProject: ProjectSyncDto?) {
+        if (compensationProject != null) {
+            projectRepository.findByProjectId(projectId).ifPresent { project ->
+                project.endDate = compensationProject.endDate
+                // Add employees to project if necessary
+                compensationProject.employees.filter {id ->  !project.employees.map { it.employeeId }.contains(id) }.forEach {
+                    project.employees.add(employeeRepository.findByEmployeeId(it).orElseThrow())
+                }
+                // Remove employees from project if necessary
+                project.employees.map { it.id }.filter {id ->  !compensationProject.employees.map { it }.contains(id) }.forEach {
+                    project.employees.removeIf {t: WorktimeEmployee -> t.employeeId == it }
+                }
+                project.deleted = compensationProject.deleted
+                project.state = AggregateState.ACTIVE
+                projectRepository.save(project)
+            }
+        } else {
+            projectRepository.findById(projectId).ifPresent {
+                projectRepository.deleteByProjectId(projectId)
+            }
+        }
     }
-
 
 }

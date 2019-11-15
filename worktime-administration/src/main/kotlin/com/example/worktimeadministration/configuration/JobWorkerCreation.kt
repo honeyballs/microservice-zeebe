@@ -2,10 +2,7 @@ package com.example.worktimeadministration.configuration
 
 import com.example.worktimeadministration.jobhandlers.EmployeeJobHandlers
 import com.example.worktimeadministration.jobhandlers.ProjectJobHandlers
-import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.module.kotlin.readValue
 import io.zeebe.client.ZeebeClient
-import io.zeebe.client.api.worker.JobClient
 import io.zeebe.client.api.worker.JobHandler
 import io.zeebe.client.api.worker.JobWorker
 import org.springframework.beans.factory.annotation.Autowired
@@ -45,12 +42,12 @@ class JobWorkerCreation {
     }
 
     @Bean
-    fun setEmployeeFailedWorker(): JobWorker {
+    fun setEmployeeCompensationWorker(): JobWorker {
         println("Synchronisation Worker created")
         return client.newWorker()
-                .jobType("fail-worktime-employee")
-                .handler(JobHandler(handlers.failEmployee))
-                .fetchVariables("employee")
+                .jobType("compensate-worktime-employee")
+                .handler(JobHandler(handlers.compensateEmployee))
+                .fetchVariables("employee", "compensationEmployee")
                 .open()
     }
 
@@ -75,12 +72,12 @@ class JobWorkerCreation {
     }
 
     @Bean
-    fun setProjectFailedWorker(): JobWorker {
+    fun setProjectCompensationWorker(): JobWorker {
         println("Synchronisation Worker created")
         return client.newWorker()
-                .jobType("fail-worktime-project")
-                .handler(JobHandler(projectHandlers.failProject))
-                .fetchVariables("project")
+                .jobType("compensate-worktime-project")
+                .handler(JobHandler(projectHandlers.compensateProject))
+                .fetchVariables("project", "compensationProject")
                 .open()
     }
 

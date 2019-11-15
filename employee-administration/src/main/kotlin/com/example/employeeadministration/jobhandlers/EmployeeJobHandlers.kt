@@ -33,12 +33,30 @@ class EmployeeJobHandlers {
                 .join()
     }
 
-    val failEmployee: (JobClient, ActivatedJob) -> Unit = {jobClient: JobClient, job: ActivatedJob ->
-        println("EXECUTING FAILURE JOB")
+    val compensateEmployee: (JobClient, ActivatedJob) -> Unit = { jobClient: JobClient, job: ActivatedJob ->
+        println("EXECUTING COMPENSATION JOB")
+        val variables = job.variablesAsMap
         val employeeId = mapper.readValue<EmployeeSyncDto>(job.variablesAsMap["employee"] as String).id
-        val employee = employeeRepository.findById(employeeId).orElseThrow()
-        employee.state = AggregateState.FAILED
-        employeeRepository.save(employee)
+        if (variables.containsKey("compensationEmployee")) {
+            val compensationEmployee = mapper.readValue<EmployeeSyncDto>(variables["compensationEmployee"] as String)
+            employeeRepository.findById(employeeId).ifPresent {
+                it.firstname = compensationEmployee.firstname
+                it.lastname = compensationEmployee.lastname
+                it.address = compensationEmployee.address
+                it.iban = compensationEmployee.iban
+                it.mail = compensationEmployee.mail
+                it.department = compensationEmployee.department
+                it.title = compensationEmployee.title
+                it.hourlyRate = compensationEmployee.hourlyRate
+                it.deleted = compensationEmployee.deleted
+                it.state = AggregateState.ACTIVE
+                employeeRepository.save(it)
+            }
+        } else {
+            employeeRepository.findById(employeeId).ifPresent {
+                employeeRepository.deleteById(employeeId)
+            }
+        }
         jobClient.newCompleteCommand(job.key)
                 .send()
                 .join()

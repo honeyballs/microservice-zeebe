@@ -45,4 +45,20 @@ class Employee(
         this.deleted = true
     }
 
+    override fun copy(): Employee {
+        return Employee(
+                this.id!!,
+                this.firstname,
+                this.lastname,
+                this.address,
+                this.mail,
+                this.iban,
+                this.department,
+                this.title,
+                this.hourlyRate,
+                this.deleted,
+                this.state
+        )
+    }
+
 }

@@ -1,5 +1,6 @@
 package com.example.worktimeadministration.services
 
+import com.example.worktimeadministration.model.AggregateState
 import com.example.worktimeadministration.model.WorktimeEntry
 import com.example.worktimeadministration.model.dto.WorktimeEntryDto
 import com.example.worktimeadministration.repositories.WorktimeEmployeeRepository
@@ -49,8 +50,8 @@ class WorktimeEntryService(
     }
 
     fun createWorktimeEntry(worktimeEntryDto: WorktimeEntryDto): WorktimeEntryDto {
-        val project = projectRepository.findById(worktimeEntryDto.project.id).orElseThrow()
-        val employee = employeeRepository.findById(worktimeEntryDto.employee.id).orElseThrow()
+        val project = projectRepository.findByProjectId(worktimeEntryDto.project.id).orElseThrow()
+        val employee = employeeRepository.findByEmployeeId(worktimeEntryDto.employee.id).orElseThrow()
         val entry = WorktimeEntry(
                 null,
                 worktimeEntryDto.startTime,
@@ -60,6 +61,7 @@ class WorktimeEntryService(
                 employee,
                 worktimeEntryDto.description
         )
+        entry.state = AggregateState.ACTIVE
         return mapToDto(worktimeEntryRepository.save(entry))
     }
 

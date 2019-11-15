@@ -60,17 +60,17 @@
       <bpmn:outgoing>SequenceFlow_0f2s6mh</bpmn:outgoing>
       <bpmn:outgoing>SequenceFlow_0swo2lu</bpmn:outgoing>
     </bpmn:parallelGateway>
-    <bpmn:serviceTask id="ServiceTask_0vy4ium" name="Fail Source Employee">
+    <bpmn:serviceTask id="ServiceTask_0vy4ium" name="Compensate Source Employee">
       <bpmn:extensionElements>
-        <zeebe:taskDefinition type="fail-employee" />
+        <zeebe:taskDefinition type="compensate-employee" />
       </bpmn:extensionElements>
       <bpmn:incoming>SequenceFlow_04chop1</bpmn:incoming>
       <bpmn:outgoing>SequenceFlow_02cu69d</bpmn:outgoing>
     </bpmn:serviceTask>
     <bpmn:sequenceFlow id="SequenceFlow_04chop1" sourceRef="ExclusiveGateway_0rbx9x5" targetRef="ServiceTask_0vy4ium" />
-    <bpmn:serviceTask id="ServiceTask_0bp7gpl" name="Fail Project Employee">
+    <bpmn:serviceTask id="ServiceTask_0bp7gpl" name="Compensate Project Employee">
       <bpmn:extensionElements>
-        <zeebe:taskDefinition type="fail-project-employee" />
+        <zeebe:taskDefinition type="compensate-project-employee" />
       </bpmn:extensionElements>
       <bpmn:incoming>SequenceFlow_0f2s6mh</bpmn:incoming>
       <bpmn:outgoing>SequenceFlow_040ldbk</bpmn:outgoing>
@@ -120,9 +120,9 @@
     </bpmn:serviceTask>
     <bpmn:sequenceFlow id="SequenceFlow_0rmszau" sourceRef="ExclusiveGateway_1v8opk5" targetRef="ServiceTask_16sknxk" />
     <bpmn:sequenceFlow id="SequenceFlow_0vwcp5g" sourceRef="ServiceTask_16sknxk" targetRef="ExclusiveGateway_0rfqsdc" />
-    <bpmn:serviceTask id="ServiceTask_14qthau" name="Fail Worktime Employee">
+    <bpmn:serviceTask id="ServiceTask_14qthau" name="Compensate Worktime Employee">
       <bpmn:extensionElements>
-        <zeebe:taskDefinition type="fail-worktime-employee" />
+        <zeebe:taskDefinition type="compensate-worktime-employee" />
       </bpmn:extensionElements>
       <bpmn:incoming>SequenceFlow_0swo2lu</bpmn:incoming>
       <bpmn:outgoing>SequenceFlow_0ljfqdh</bpmn:outgoing>

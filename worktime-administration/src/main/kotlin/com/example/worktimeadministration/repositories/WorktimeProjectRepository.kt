@@ -9,6 +9,9 @@ import java.util.*
 @Repository
 interface WorktimeProjectRepository: JpaRepository<WorktimeProject, Long> {
 
+    fun deleteByProjectId(id: Long)
+
+    fun findByProjectId(id: Long): Optional<WorktimeProject>
     fun findAllByDeletedFalse(): List<WorktimeProject>
     fun findByProjectIdAndDeletedFalse(id: Long): Optional<WorktimeProject>
     fun findByEndDateNullAndDeletedFalse(): List<WorktimeProject>

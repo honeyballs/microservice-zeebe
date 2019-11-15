@@ -59,17 +59,17 @@
       <bpmn:outgoing>SequenceFlow_01khe1t</bpmn:outgoing>
       <bpmn:outgoing>SequenceFlow_1xmurcb</bpmn:outgoing>
     </bpmn:parallelGateway>
-    <bpmn:serviceTask id="ServiceTask_1sc6lvr" name="Fail Source Project">
+    <bpmn:serviceTask id="ServiceTask_1sc6lvr" name="Compensate Source Project">
       <bpmn:extensionElements>
-        <zeebe:taskDefinition type="fail-project" />
+        <zeebe:taskDefinition type="compensate-project" />
       </bpmn:extensionElements>
       <bpmn:incoming>SequenceFlow_01khe1t</bpmn:incoming>
       <bpmn:outgoing>SequenceFlow_1yacws3</bpmn:outgoing>
     </bpmn:serviceTask>
     <bpmn:sequenceFlow id="SequenceFlow_01khe1t" sourceRef="ExclusiveGateway_0baddos" targetRef="ServiceTask_1sc6lvr" />
-    <bpmn:serviceTask id="ServiceTask_1yjxj2o" name="Fail Worktime Project">
+    <bpmn:serviceTask id="ServiceTask_1yjxj2o" name="Compensate Worktime Project">
       <bpmn:extensionElements>
-        <zeebe:taskDefinition type="fail-worktime-project" />
+        <zeebe:taskDefinition type="compensate-worktime-project" />
       </bpmn:extensionElements>
       <bpmn:incoming>SequenceFlow_1xmurcb</bpmn:incoming>
       <bpmn:outgoing>SequenceFlow_1rehe2w</bpmn:outgoing>

@@ -22,10 +22,10 @@ class EmployeeJobHandlers(
 
     val synchronizeEmployees: (JobClient, ActivatedJob) -> Unit = { jobClient, job ->
         println("EXECUTING SYNC JOB")
-        val employeeDto = mapEmployeeVariableToDto(job.variablesAsMap)
+        val employeeDto = objectMapper.readValue<EmployeeSyncDto>(job.variablesAsMap["employee"] as String)
         try {
             // Retrieve and update the employee or create it if it doesn't exist
-            val employee = employeeRepository.findByEmployeeId(employeeDto.id).map {
+            employeeRepository.findByEmployeeId(employeeDto.id).ifPresentOrElse({
                 it.firstname = employeeDto.firstname
                 it.lastname = employeeDto.lastname
                 it.mail = employeeDto.mail
@@ -34,7 +34,7 @@ class EmployeeJobHandlers(
                 it.deleted = employeeDto.deleted
                 it.state = employeeDto.state
                 employeeRepository.save(it)
-            }.orElseGet {
+            }) {
                 val projectEmployee = ProjectEmployee(null, employeeDto.id, employeeDto.firstname, employeeDto.lastname, employeeDto.mail, employeeDto.department, employeeDto.title, employeeDto.deleted, employeeDto.state)
                 employeeRepository.save(projectEmployee)
             }
@@ -52,10 +52,10 @@ class EmployeeJobHandlers(
         }
     }
 
-    val activateEmployee: (JobClient, ActivatedJob) -> Unit = {jobClient: JobClient, job: ActivatedJob ->
+    val activateEmployee: (JobClient, ActivatedJob) -> Unit = { jobClient: JobClient, job: ActivatedJob ->
         println("EXECUTING ACTIVATION JOB")
-        val employeeId = mapEmployeeVariableToDto(job.variablesAsMap).id
-        val employee = employeeRepository.findById(employeeId).orElseThrow()
+        val employeeId = objectMapper.readValue<EmployeeSyncDto>(job.variablesAsMap["employee"] as String).id
+        val employee = employeeRepository.findByEmployeeId(employeeId).orElseThrow()
         employee.state = AggregateState.ACTIVE
         employeeRepository.save(employee)
         jobClient.newCompleteCommand(job.key)
@@ -63,22 +63,30 @@ class EmployeeJobHandlers(
                 .join()
     }
 
-    val failEmployee: (JobClient, ActivatedJob) -> Unit = {jobClient: JobClient, job: ActivatedJob ->
-        println("EXECUTING FAILURE JOB")
-        val employeeId = mapEmployeeVariableToDto(job.variablesAsMap).id
-        val employee = employeeRepository.findById(employeeId).ifPresent {
-            it.state = AggregateState.FAILED
-            employeeRepository.save(it)
+    val compensateEmployee: (JobClient, ActivatedJob) -> Unit = { jobClient: JobClient, job: ActivatedJob ->
+        println("EXECUTING COMPENSATION JOB")
+        val variables = job.variablesAsMap
+        val employeeId = objectMapper.readValue<EmployeeSyncDto>(variables["employee"] as String).id
+        if (variables.containsKey("compensationEmployee")) {
+            val compensationEmployee = objectMapper.readValue<EmployeeSyncDto>(variables["compensationEmployee"] as String)
+            employeeRepository.findByEmployeeId(employeeId).ifPresent {
+                it.firstname = compensationEmployee.firstname
+                it.lastname = compensationEmployee.lastname
+                it.mail = compensationEmployee.mail
+                it.department = compensationEmployee.department
+                it.title = compensationEmployee.title
+                it.deleted = compensationEmployee.deleted
+                it.state = AggregateState.ACTIVE
+                employeeRepository.save(it)
+            }
+        } else {
+            employeeRepository.findByEmployeeId(employeeId).ifPresent {
+                employeeRepository.deleteByEmployeeId(employeeId)
+            }
         }
         jobClient.newCompleteCommand(job.key)
                 .send()
                 .join()
     }
-
-    fun mapEmployeeVariableToDto(variables: Map<String, Any>): EmployeeSyncDto {
-        val employeeJson = variables["employee"] as String
-        return objectMapper.readValue<EmployeeSyncDto>(employeeJson)
-    }
-
 
 }

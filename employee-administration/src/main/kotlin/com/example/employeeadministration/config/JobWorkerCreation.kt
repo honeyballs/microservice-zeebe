@@ -1,13 +1,7 @@
 package com.example.employeeadministration.config
 
 import com.example.employeeadministration.jobhandlers.EmployeeJobHandlers
-import com.example.employeeadministration.model.AggregateState
-import com.example.employeeadministration.model.Employee
-import com.example.employeeadministration.repositories.EmployeeRepository
-import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.module.kotlin.readValue
 import io.zeebe.client.ZeebeClient
-import io.zeebe.client.api.worker.JobClient
 import io.zeebe.client.api.worker.JobHandler
 import io.zeebe.client.api.worker.JobWorker
 import org.springframework.beans.factory.annotation.Autowired
@@ -37,9 +31,9 @@ class JobWorkerCreation {
     fun setEmployeeFailedWorker(): JobWorker {
         println("Failure Worker created")
         return client.newWorker()
-                .jobType("fail-employee")
-                .handler(JobHandler(handlers.failEmployee))
-                .fetchVariables("employee")
+                .jobType("compensate-employee")
+                .handler(JobHandler(handlers.compensateEmployee))
+                .fetchVariables("employee", "compensationEmployee")
                 .open()
     }
 

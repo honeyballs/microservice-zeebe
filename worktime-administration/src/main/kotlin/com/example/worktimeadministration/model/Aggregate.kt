@@ -12,4 +12,6 @@ abstract class Aggregate(@Id @GeneratedValue var id: Long?, var state: Aggregate
     }
 
     abstract fun deleteAggregate()
+
+    abstract fun copy(): Aggregate
 }

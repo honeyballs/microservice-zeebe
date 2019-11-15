@@ -40,5 +40,16 @@ class Project(
         this.deleted = true
     }
 
-
+    override fun copy(): Project {
+        return Project(
+                this.id!!,
+                this.name,
+                this.customer,
+                this.startDate,
+                this.endDate,
+                this.employees.map{ it.copy() }.toMutableSet(),
+                this.deleted,
+                this.state
+        )
+    }
 }
