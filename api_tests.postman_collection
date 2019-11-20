@@ -1,0 +1,492 @@
+{
+	"info": {
+		"_postman_id": "2d4999cf-974b-4479-baee-a90ac0af6856",
+		"name": "Microservice Zeebe",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Create Employee",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "1bb63730-16f2-4825-8733-9127db7e29d1",
+						"exec": [
+							"var employeeId = JSON.parse(responseBody).id",
+							"pm.environment.set(\"employee_id\", employeeId);"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"firstname\": \"Max\",\n\t\"lastname\": \"Mustermann\",\n\t\"address\": \"Teststr. 2\",\n\t\"mail\": \"m.mustermann@domain.com\",\n\t\"iban\": \"51773025135\",\n\t\"department\": \"Java Development\",\n\t\"title\": \"Junior Developer\",\n\t\"hourlyRate\": 30.20\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8085/employees",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8085",
+					"path": [
+						"employees"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get by Employee by Department",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "1bb63730-16f2-4825-8733-9127db7e29d1",
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"type": "text",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8085/employees/department/Java%20Development",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8085",
+					"path": [
+						"employees",
+						"department",
+						"Java%20Development"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Update Employee",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "1bb63730-16f2-4825-8733-9127db7e29d1",
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"id\": {{employee_id}},\n\t\"firstname\": \"Max\",\n\t\"lastname\": \"Mustermann-Müller\",\n\t\"address\": \"Teststr. 2\",\n\t\"mail\": \"m.mustermann-mueller@domain.com\",\n\t\"iban\": \"51773025135\",\n\t\"department\": \"Java Development\",\n\t\"title\": \"Junior Developer\",\n\t\"hourlyRate\": 30.20\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8085/employees",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8085",
+					"path": [
+						"employees"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Employees from Project Admin",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "e9f5e2c9-d947-4919-b736-926ae8834035",
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8086/employees",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8086",
+					"path": [
+						"employees"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Create Project",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "287dab16-2cfd-469b-bdf9-9c8cd8f793ab",
+						"exec": [
+							"var projectId = JSON.parse(responseBody).id",
+							"pm.environment.set(\"project_id\", projectId);"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"name\": \"Microservice Beispiel\",\n\t\"customer\": \"IT Frankfurt GmbH\",\n\t\"startDate\": \"01.09.2019\",\n\t\"employees\": [{\n        \"id\": {{employee_id}},\n        \"firstname\": \"Max\",\n        \"lastname\": \"Mustermann\",\n        \"mail\": \"m.mustermann@domain.com\",\n        \"department\": \"Java Development\",\n        \"title\": \"Junior Developer\"\n    }]\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8086/projects",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8086",
+					"path": [
+						"projects"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Employees from Worktime Admin",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "e9f5e2c9-d947-4919-b736-926ae8834035",
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8087/employees",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8087",
+					"path": [
+						"employees"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Projects from Worktime Admin",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "e9f5e2c9-d947-4919-b736-926ae8834035",
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8087/projects",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8087",
+					"path": [
+						"projects"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Create Worktime Entry",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "287dab16-2cfd-469b-bdf9-9c8cd8f793ab",
+						"exec": [
+							"var worktimeId = JSON.parse(responseBody).id",
+							"pm.environment.set(\"worktime_id\", worktimeId);"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"type": "text",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"startTime\": \"01.10.2019 09:15:00\",\n\t\"endTime\": \"01.10.2019 17:45:00\",\n\t\"pauseTimeInMinutes\": 30,\n\t\"project\": {\n\t\t\"id\": {{project_id}},\n\t\t\"name\": \"Microservice Beispiel\",\n\t\t\"startDate\": \"01.09.2019\"\n\t},\n\t\"employee\": {\n\t\t\"id\": {{employee_id}},\n\t\t\"firstname\": \"Max\",\n\t\t\"lastname\": \"Mustermann-Müller\"\n\t},\n\t\"description\": \"Testing Zeebe\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8087/worktime",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8087",
+					"path": [
+						"worktime"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Entry By Employee",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "287dab16-2cfd-469b-bdf9-9c8cd8f793ab",
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"type": "text",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8087/worktime/employee/1",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8087",
+					"path": [
+						"worktime",
+						"employee",
+						"1"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Update Entry - should fail",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "287dab16-2cfd-469b-bdf9-9c8cd8f793ab",
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"type": "text",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"id\": {{worktime_id}},\n\t\"startTime\": \"01.10.2019 09:15:00\",\n\t\"endTime\": \"01.10.2019 17:45:00\",\n\t\"pauseTimeInMinutes\": 15,\n\t\"project\": {\n\t\t\"id\": {{project_id}},\n\t\t\"name\": \"Microservice Beispiel\",\n\t\t\"startDate\": \"01.09.2019\"\n\t},\n\t\"employee\": {\n\t\t\"id\": {{employee_id}},\n\t\t\"firstname\": \"Max\",\n\t\t\"lastname\": \"Mustermann-Müller\"\n\t},\n\t\"description\": \"Testing Zeebe\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8087/worktime",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8087",
+					"path": [
+						"worktime"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Update Employee - FAILS IN WORKTIME SERVICE, SHOULD ROLLBACK",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "1bb63730-16f2-4825-8733-9127db7e29d1",
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"type": "text",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"id\": {{employee_id}},\n\t\"firstname\": \"Max\",\n\t\"lastname\": \"FAIL\",\n\t\"address\": \"Teststr. 2\",\n\t\"mail\": \"m.mustermann-mueller@domain.com\",\n\t\"iban\": \"51773025135\",\n\t\"department\": \"Java Development\",\n\t\"title\": \"Junior Developer\",\n\t\"hourlyRate\": 30.20\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8085/employees",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8085",
+					"path": [
+						"employees"
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"protocolProfileBehavior": {}
+}
