@@ -1,0 +1,19 @@
+version: "3.7"
+
+services:
+
+  employee-administration:
+    build: ./employee-administration/.
+    ports:
+      - "8085:8085"
+
+
+  project-administration:
+    build: ./project-administration/.
+    ports:
+      - "8086:8086"
+
+  worktime-administration:
+    build: ./worktime-administration/.
+    ports:
+      - "8087:8087"  
