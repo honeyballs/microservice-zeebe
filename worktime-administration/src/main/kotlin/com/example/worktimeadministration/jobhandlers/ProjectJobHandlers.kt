@@ -14,6 +14,14 @@ import org.springframework.stereotype.Component
 import org.springframework.transaction.UnexpectedRollbackException
 import org.springframework.transaction.annotation.Transactional
 
+/**
+ * This class contains the functions used by the Zeebe JobHandlers to execute logic when a job is received.
+ * The functions are stored in variables, so they can be passed to the handlers.
+ *
+ * A singleton instance of this class is created when the application context is initialized.
+ * This way a repository and the ObjectMapper (used for JSON Deserialization) can be injected into the class to use them in these functions.
+ *
+ */
 @Component
 class ProjectJobHandlers(
         val projectRepository: WorktimeProjectRepository,

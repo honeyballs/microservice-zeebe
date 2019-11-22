@@ -7,6 +7,9 @@ import org.springframework.stereotype.Repository
 import java.time.LocalDate
 import java.util.*
 
+/**
+ * Defines custom database queries. Spring takes care of the implementation.
+ */
 @Repository
 interface ProjectRepository: JpaRepository<Project, Long> {
 

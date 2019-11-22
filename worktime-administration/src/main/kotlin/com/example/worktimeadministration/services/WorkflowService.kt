@@ -3,6 +3,9 @@ package com.example.worktimeadministration.services
 import io.zeebe.client.ZeebeClient
 import org.springframework.stereotype.Service
 
+/**
+ * This service is used to start a process instance. A reference to the ZeebeClient is injected.
+ */
 @Service
 class WorkflowService(val client: ZeebeClient) {
 

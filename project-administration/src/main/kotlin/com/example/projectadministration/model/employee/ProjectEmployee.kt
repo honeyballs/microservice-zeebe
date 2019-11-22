@@ -6,6 +6,9 @@ import javax.persistence.Entity
 import javax.persistence.GeneratedValue
 import javax.persistence.Id
 
+/**
+ * The Project Service's representation of an employee.
+ */
 @Entity
 data class ProjectEmployee(
         @Id @GeneratedValue var id: Long?,

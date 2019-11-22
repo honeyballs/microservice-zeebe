@@ -5,6 +5,9 @@ import com.example.worktimeadministration.model.project.WorktimeProject
 import com.example.worktimeadministration.repositories.WorktimeProjectRepository
 import org.springframework.stereotype.Service
 
+/**
+ * Service used by the WorktimeEmployeeController. Allows only read access.
+ */
 @Service
 class WorktimeProjectService(val projectRepository: WorktimeProjectRepository) {
 

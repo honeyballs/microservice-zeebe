@@ -13,6 +13,14 @@ import org.springframework.stereotype.Component
 import org.springframework.transaction.UnexpectedRollbackException
 import java.util.function.Supplier
 
+/**
+ * This class contains the functions used by the Zeebe JobHandlers to execute logic when a job is received.
+ * The functions are stored in variables, so they can be passed to the handlers.
+ *
+ * A singleton instance of this class is created when the application context is initialized.
+ * This way a repository and the ObjectMapper (used for JSON Deserialization) can be injected into the class to use them in these functions.
+ *
+ */
 @Component
 class EmployeeJobHandlers(
         val employeeRepository: ProjectEmployeeRepository,
@@ -38,12 +46,16 @@ class EmployeeJobHandlers(
                 val projectEmployee = ProjectEmployee(null, employeeDto.id, employeeDto.firstname, employeeDto.lastname, employeeDto.mail, employeeDto.department, employeeDto.title, employeeDto.deleted, employeeDto.state)
                 employeeRepository.save(projectEmployee)
             }
+            // If no exception was thrown the synchronization was successful.
+            // A String Boolean map is used to define new process variables returned to Zeebe by this job.
             val result = mapOf("projectEmployeeSynced" to true)
+            // Using the provided JobClient we tell Zeebe that the job is complete and pass our map as new process variables
             jobClient.newCompleteCommand(job.key)
                     .variables(result)
                     .send()
                     .join()
         } catch (e: Exception) {
+            // If an exception was thrown the job is also complete, but set the map value to false.
             val result = mapOf("projectEmployeeSynced" to false)
             jobClient.newCompleteCommand(job.key)
                     .variables(result)

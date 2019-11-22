@@ -10,6 +10,9 @@ import javax.persistence.JoinColumn
 import javax.persistence.ManyToOne
 import kotlin.Exception
 
+/**
+ * The WorktimeEntry aggregate.
+ */
 @Entity
 class WorktimeEntry(
         id: Long?,

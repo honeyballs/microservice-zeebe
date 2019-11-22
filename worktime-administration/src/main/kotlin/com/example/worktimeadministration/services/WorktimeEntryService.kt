@@ -9,6 +9,9 @@ import com.example.worktimeadministration.repositories.WorktimeProjectRepository
 import com.fasterxml.jackson.databind.ObjectMapper
 import org.springframework.stereotype.Service
 
+/**
+ * Service for worktime interactions.
+ */
 @Service
 class WorktimeEntryService(
         val worktimeEntryRepository: WorktimeEntryRepository,
@@ -65,6 +68,11 @@ class WorktimeEntryService(
         return mapToDto(worktimeEntryRepository.save(entry))
     }
 
+    /**
+     * Compares received project data with local project data and applies updates.
+     * The service does not just set the fields, it uses the aggregate functions to do so because these functions can contain business rules which have to be applied.
+     * It is important to note that no updates are permitted without using aggregate functions.
+     */
     fun updateWorktimeEntry(worktimeEntryDto: WorktimeEntryDto): WorktimeEntryDto {
         val entry = worktimeEntryRepository.findByIdAndDeletedFalse(worktimeEntryDto.id!!).orElseThrow()
         if (entry.startTime != worktimeEntryDto.startTime) {

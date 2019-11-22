@@ -8,6 +8,9 @@ import org.springframework.web.bind.annotation.*
 
 const val url = "employees"
 
+/**
+ * REST API to interact with employees.
+ */
 @RestController
 class EmployeeController(val employeeService: EmployeeService) {
 

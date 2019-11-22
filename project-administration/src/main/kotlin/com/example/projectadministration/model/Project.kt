@@ -5,6 +5,9 @@ import java.io.Serializable
 import java.time.LocalDate
 import javax.persistence.*
 
+/**
+ * The Project aggregate.
+ */
 @Entity
 class Project(
         id: Long?,

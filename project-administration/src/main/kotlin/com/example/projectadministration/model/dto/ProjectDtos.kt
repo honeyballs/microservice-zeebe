@@ -5,6 +5,11 @@ import com.example.projectadministration.model.AggregateState
 import com.fasterxml.jackson.annotation.JsonFormat
 import java.time.LocalDate
 
+/**
+ * DTOs used for the REST APIs. These differ from DTOs used to synchronize Services via Zeebe,
+ * for example the "deleted" field is not present here because deleted Aggregates would not be sent.
+ */
+
 data class ProjectDto(
         var id: Long?,
         val name: String,

@@ -9,6 +9,9 @@ import org.springframework.web.bind.annotation.*
 
 const val url = "worktime"
 
+/**
+ * REST API to interact with worktime entries.
+ */
 @RestController
 class WorktimeEntryController(val worktimeEntryService: WorktimeEntryService) {
 

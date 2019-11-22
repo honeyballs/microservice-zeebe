@@ -5,6 +5,9 @@ import com.example.projectadministration.model.AggregateState
 import com.fasterxml.jackson.annotation.JsonFormat
 import java.time.LocalDate
 
+/**
+ * DTO used for the replication of aggregates via Zeebe. This contains all fields but reduces relationships between aggregates to just the ids.
+ */
 class ProjectSyncDto(
         val id: Long,
         val name: String,

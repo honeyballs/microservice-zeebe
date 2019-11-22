@@ -7,6 +7,9 @@ import com.fasterxml.jackson.annotation.JsonFormat
 import java.time.LocalDate
 import java.time.LocalDateTime
 
+/**
+ * DTOs used for the REST APIs. Does not contain a deleted field since deleted entries would not be sent.
+ */
 data class WorktimeEmployeeDto(
         val id: Long,
         val firstname: String,

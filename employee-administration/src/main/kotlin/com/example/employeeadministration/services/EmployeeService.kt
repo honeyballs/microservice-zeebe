@@ -8,6 +8,9 @@ import com.example.employeeadministration.repositories.EmployeeRepository
 import com.fasterxml.jackson.databind.ObjectMapper
 import org.springframework.stereotype.Service
 
+/**
+ * Service for employee interactions.
+ */
 @Service
 class EmployeeService(
         val employeeRepository: EmployeeRepository,
@@ -53,6 +56,11 @@ class EmployeeService(
         return mapToDto(saveEmployeeWithWorkflow(employee, null))
     }
 
+    /**
+     * Compares received employee data with local employee data and applies updates.
+     * The service does not just set the fields, it uses the aggregate functions to do so because these functions can contain business rules which have to be applied.
+     * It is important to note that no updates are permitted without using aggregate functions.
+     */
     fun updateEmployee(employeeDto: EmployeeDto): EmployeeDto {
         val employee = employeeRepository.findByIdAndDeletedFalse(employeeDto.id!!).orElseThrow()
         val compensationEmployee = employee.copy()

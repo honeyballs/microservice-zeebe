@@ -9,6 +9,9 @@ import com.example.projectadministration.repositories.ProjectRepository
 import com.fasterxml.jackson.databind.ObjectMapper
 import org.springframework.stereotype.Service
 
+/**
+ * Service for project interactions.
+ */
 @Service
 class ProjectService(
         val projectRepository: ProjectRepository,
@@ -18,7 +21,11 @@ class ProjectService(
         val objectMapper: ObjectMapper
 ) {
 
+    /**
+     * Saves a project and starts the replication workflow.
+     */
     fun saveProjectWithWorkflow(project: Project, compensationProject: Project?): Project {
+        // The process variables. Aggregates are passed as a JSON String.
         var variablesMap = emptyMap<String, String>()
         // If the employee was created no compensation data is necessary
         if (compensationProject != null) {
@@ -27,6 +34,7 @@ class ProjectService(
         project.state = AggregateState.PENDING
         val savedProject = projectRepository.save(project)
         variablesMap = variablesMap.plus("project" to objectMapper.writeValueAsString(mapToSyncDto(savedProject)))
+        // Start the workflow after the aggregate was saved
         workflowService.createWorkflowInstance(variablesMap, "synchronize-project")
         return savedProject
     }
@@ -80,6 +88,11 @@ class ProjectService(
         return mapToDto(saveProjectWithWorkflow(project, null))
     }
 
+    /**
+     * Compares received project data with local project data and applies updates.
+     * The service does not just set the fields, it uses the aggregate functions to do so because these functions can contain business rules which have to be applied.
+     * It is important to note that no updates are permitted without using aggregate functions.
+     */
     fun updateProject(projectDto: ProjectDto): ProjectDto {
         val project = projectRepository.findByIdAndDeletedFalse(projectDto.id!!).orElseThrow()
         val compensationProject = project.copy()

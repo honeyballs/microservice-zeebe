@@ -11,6 +11,9 @@ import org.springframework.web.bind.annotation.RestController
 
 const val employeeUrl = "employees"
 
+/**
+ * REST API to interact with the replicated employees. Accepts no manipulating commands, only GET.
+ */
 @RestController
 class WorktimeEmployeeController(val employeeService: WorktimeEmployeeService) {
 

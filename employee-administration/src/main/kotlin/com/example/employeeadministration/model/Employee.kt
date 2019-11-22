@@ -5,6 +5,9 @@ import com.fasterxml.jackson.annotation.JsonTypeName
 import java.math.BigDecimal
 import javax.persistence.Entity
 
+/**
+ * The Employee aggregate.
+ */
 @Entity
 class Employee(
         id: Long?,

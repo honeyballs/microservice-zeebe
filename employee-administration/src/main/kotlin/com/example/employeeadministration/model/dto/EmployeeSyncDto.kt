@@ -3,6 +3,9 @@ package com.example.employeeadministration.model.dto
 import com.example.employeeadministration.model.AggregateState
 import java.math.BigDecimal
 
+/**
+ * DTO used for the replication of aggregates via Zeebe. This contains all fields but reduces relationships between aggregates to just the ids.
+ */
 data class EmployeeSyncDto(
         val id: Long,
         val firstname: String,

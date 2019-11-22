@@ -12,7 +12,14 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Component
 
 
-
+/**
+ * This class contains the functions used by the Zeebe JobHandlers to execute logic when a job is received.
+ * The functions are stored in variables, so they can be passed to the handlers.
+ *
+ * A singleton instance of this class is created when the application context is initialized.
+ * This way repositories and the ObjectMapper (used for JSON Deserialization) can be injected into the class to use them in these functions.
+ *
+ */
 @Component
 class EmployeeJobHandlers {
 

@@ -5,6 +5,9 @@ import com.example.worktimeadministration.model.project.WorktimeProject
 import java.io.Serializable
 import javax.persistence.*
 
+/**
+ * The Worktime Service's representation of an employee.
+ */
 @Entity
 data class WorktimeEmployee(
         @Id @GeneratedValue var id: Long?,

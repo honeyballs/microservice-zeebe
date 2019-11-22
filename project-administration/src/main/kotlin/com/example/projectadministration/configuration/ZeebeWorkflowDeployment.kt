@@ -7,6 +7,10 @@ import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import javax.annotation.PreDestroy
 
+/**
+ * Uses the injected instance of the ZeebeClient to deploy workflows.
+ * The workflows are under the resources directory.
+ */
 @Configuration
 class ZeebeWorkflowDeployment {
 
@@ -24,6 +28,7 @@ class ZeebeWorkflowDeployment {
         }
     }
 
+    // Before the application is stopped, the ZeebeClient closes the connection.
     @PreDestroy
     fun closeClient() {
         client.close()

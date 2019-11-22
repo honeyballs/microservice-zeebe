@@ -8,6 +8,9 @@ import java.io.Serializable
 import java.time.LocalDate
 import javax.persistence.*
 
+/**
+ * The Project Service's representation of a project.
+ */
 @Entity
 data class WorktimeProject(
         @Id @GeneratedValue var id: Long?,

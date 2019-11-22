@@ -5,6 +5,10 @@ import com.example.worktimeadministration.model.AggregateState
 import com.fasterxml.jackson.annotation.JsonFormat
 import java.time.LocalDate
 
+/**
+ * DTO used for the replication of aggregates via Zeebe.
+ * This DTO contains only fields relevant for this service, all other fields will be ignored.
+ */
 class ProjectSyncDto(
         val id: Long,
         val name: String,

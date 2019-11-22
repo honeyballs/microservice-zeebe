@@ -5,6 +5,9 @@ import com.example.projectadministration.model.employee.ProjectEmployee
 import com.example.projectadministration.repositories.ProjectEmployeeRepository
 import org.springframework.stereotype.Service
 
+/**
+ * Service used by the ProjectEmployeeController. Allows only read access.
+ */
 @Service
 class ProjectEmployeeService(val projectEmployeeRepository: ProjectEmployeeRepository) {
 

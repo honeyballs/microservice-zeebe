@@ -8,6 +8,9 @@ import org.springframework.web.bind.annotation.*
 
 const val projectUrl = "projects"
 
+/**
+ * REST API to interact with projects.
+ */
 @RestController
 class ProjectController(val projectService: ProjectService) {
 

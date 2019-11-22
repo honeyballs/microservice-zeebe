@@ -8,7 +8,13 @@ import io.zeebe.client.api.worker.JobWorker
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
+import javax.annotation.PreDestroy
 
+/**
+ * Defines all JobWorker's of this Service using the injected ZeebeClient.
+ * All JobWorkers react to a type if job and contain a JobHandler which invokes a passed handler function.
+ * Lastly the process variables the job needs are specified.
+ */
 @Configuration
 class JobWorkerCreation {
 
@@ -79,6 +85,12 @@ class JobWorkerCreation {
                 .handler(JobHandler(projectHandlers.compensateProject))
                 .fetchVariables("project", "compensationProject")
                 .open()
+    }
+
+    // Before the application is stopped, the ZeebeClient closes the connection.
+    @PreDestroy
+    fun closeClient() {
+        client.close()
     }
 
 }

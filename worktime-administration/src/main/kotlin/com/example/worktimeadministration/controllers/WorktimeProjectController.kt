@@ -10,6 +10,9 @@ import org.springframework.web.bind.annotation.RestController
 
 const val projectUrl = "projects"
 
+/**
+ * REST API to interact with the replicated projects. Accepts no manipulating commands, only GET.
+ */
 @RestController
 class WorktimeProjectController(val projectService: WorktimeProjectService) {
 
