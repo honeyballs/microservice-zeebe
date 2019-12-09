@@ -14,9 +14,9 @@ class WorktimeEmployeeService(
         val employeeRepository: WorktimeEmployeeRepository,
         val projectRepository: WorktimeProjectRepository,
         val projectService: WorktimeProjectService
-) {
+): MappingService<WorktimeEmployee, WorktimeEmployeeDto> {
 
-    fun mapToDto(employee: WorktimeEmployee): WorktimeEmployeeDto {
+    override fun mapToDto(employee: WorktimeEmployee): WorktimeEmployeeDto {
         val projects = projectRepository.findAllByEmployeesContaining(employee).map { projectService.mapToDto(it) }.toMutableSet()
         return WorktimeEmployeeDto(employee.employeeId, employee.firstname, employee.lastname, projects, employee.state)
     }

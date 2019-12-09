@@ -9,9 +9,9 @@ import org.springframework.stereotype.Service
  * Service used by the ProjectEmployeeController. Allows only read access.
  */
 @Service
-class ProjectEmployeeService(val projectEmployeeRepository: ProjectEmployeeRepository) {
+class ProjectEmployeeService(val projectEmployeeRepository: ProjectEmployeeRepository): MappingService<ProjectEmployee, ProjectEmployeeDto> {
 
-    fun mapToDto(projectEmployee: ProjectEmployee): ProjectEmployeeDto {
+    override fun mapToDto(projectEmployee: ProjectEmployee): ProjectEmployeeDto {
         return ProjectEmployeeDto(projectEmployee.employeeId, projectEmployee.firstname, projectEmployee.lastname, projectEmployee.mail, projectEmployee.department, projectEmployee.title)
     }
 

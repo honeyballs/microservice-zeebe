@@ -9,9 +9,9 @@ import org.springframework.stereotype.Service
  * Service used by the WorktimeEmployeeController. Allows only read access.
  */
 @Service
-class WorktimeProjectService(val projectRepository: WorktimeProjectRepository) {
+class WorktimeProjectService(val projectRepository: WorktimeProjectRepository): MappingService<WorktimeProject, WorktimeProjectDto> {
 
-    fun mapToDto(project: WorktimeProject): WorktimeProjectDto {
+    override fun mapToDto(project: WorktimeProject): WorktimeProjectDto {
         return WorktimeProjectDto(project.projectId, project.name, project.startDate, project.endDate, project.state)
     }
 

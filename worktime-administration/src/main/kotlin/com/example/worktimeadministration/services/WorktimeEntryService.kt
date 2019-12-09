@@ -21,9 +21,9 @@ class WorktimeEntryService(
         val projectService: WorktimeProjectService,
         val projectRepository: WorktimeProjectRepository,
         val employeeRepository: WorktimeEmployeeRepository
-) {
+): MappingService<WorktimeEntry, WorktimeEntryDto> {
 
-    fun mapToDto(worktimeEntry: WorktimeEntry): WorktimeEntryDto {
+    override fun mapToDto(worktimeEntry: WorktimeEntry): WorktimeEntryDto {
         return WorktimeEntryDto(
                 worktimeEntry.id!!,
                 worktimeEntry.startTime,

@@ -19,27 +19,24 @@ class ProjectService(
         val employeeRepository: ProjectEmployeeRepository,
         val workflowService: WorkflowService,
         val objectMapper: ObjectMapper
-) {
+): WorkflowPersistenceService<Project>, MappingService<Project, ProjectDto>, SyncMappingService<Project, ProjectSyncDto> {
 
-    /**
-     * Saves a project and starts the replication workflow.
-     */
-    fun saveProjectWithWorkflow(project: Project, compensationProject: Project?): Project {
+    override fun saveAggregateWithWorkflow(aggregate: Project, compensationAggregate: Project?): Project {
         // The process variables. Aggregates are passed as a JSON String.
         var variablesMap = emptyMap<String, String>()
         // If the employee was created no compensation data is necessary
-        if (compensationProject != null) {
-            variablesMap = variablesMap.plus("compensationProject" to objectMapper.writeValueAsString(mapToSyncDto(compensationProject)))
+        if (compensationAggregate != null) {
+            variablesMap = variablesMap.plus("compensationProject" to objectMapper.writeValueAsString(mapToSyncDto(compensationAggregate)))
         }
-        project.state = AggregateState.PENDING
-        val savedProject = projectRepository.save(project)
+        aggregate.state = AggregateState.PENDING
+        val savedProject = projectRepository.save(aggregate)
         variablesMap = variablesMap.plus("project" to objectMapper.writeValueAsString(mapToSyncDto(savedProject)))
         // Start the workflow after the aggregate was saved
         workflowService.createWorkflowInstance(variablesMap, "synchronize-project")
         return savedProject
     }
 
-    fun mapToSyncDto(project: Project): ProjectSyncDto {
+    override fun mapToSyncDto(project: Project): ProjectSyncDto {
         return ProjectSyncDto(
                 project.id!!,
                 project.name,
@@ -52,7 +49,7 @@ class ProjectService(
         )
     }
 
-    fun mapToDto(project: Project): ProjectDto {
+    override fun mapToDto(project: Project): ProjectDto {
         return ProjectDto(
                 project.id!!,
                 project.name,
@@ -85,7 +82,7 @@ class ProjectService(
     fun createProject(projectDto: ProjectDto): ProjectDto {
         val employees = employeeRepository.findAllByEmployeeIdInAndDeletedFalse(projectDto.employees.map { it.id }.toMutableSet()).toMutableSet()
         val project = Project(null, projectDto.name, projectDto.customer, projectDto.startDate, projectDto.endDate, employees)
-        return mapToDto(saveProjectWithWorkflow(project, null))
+        return mapToDto(saveAggregateWithWorkflow(project, null))
     }
 
     /**
@@ -105,14 +102,14 @@ class ProjectService(
         project.employees.map { it.id }.filter {id ->  !projectDto.employees.map { it.id }.contains(id) }.forEach {
             project.removeEmployeeFromProject(employeeRepository.findByEmployeeIdAndDeletedFalse(it!!).orElseThrow())
         }
-        return mapToDto(saveProjectWithWorkflow(project, compensationProject))
+        return mapToDto(saveAggregateWithWorkflow(project, compensationProject))
     }
 
     fun deleteProject(id: Long): ProjectDto {
         val project = projectRepository.findByIdAndDeletedFalse(id).orElseThrow()
         val compensationProject = project.copy()
         project.deleteAggregate()
-        return mapToDto(saveProjectWithWorkflow(project, compensationProject))
+        return mapToDto(saveAggregateWithWorkflow(project, compensationProject))
     }
 
 }

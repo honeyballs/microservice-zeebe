@@ -16,26 +16,26 @@ class EmployeeService(
         val employeeRepository: EmployeeRepository,
         val workflowService: WorkflowService,
         val objectMapper: ObjectMapper
-) {
+): WorkflowPersistenceService<Employee>, MappingService<Employee, EmployeeDto>, SyncMappingService<Employee, EmployeeSyncDto> {
 
-    fun saveEmployeeWithWorkflow(employee: Employee, compensationEmployee: Employee?): Employee {
+    override fun saveAggregateWithWorkflow(aggregate: Employee, compensationAggregate: Employee?): Employee {
         var variablesMap = emptyMap<String, String>()
         // If the employee was created no compensation data is necessary
-        if (compensationEmployee != null) {
-            variablesMap = variablesMap.plus("compensationEmployee" to objectMapper.writeValueAsString(mapToSyncDto(compensationEmployee)))
+        if (compensationAggregate != null) {
+            variablesMap = variablesMap.plus("compensationEmployee" to objectMapper.writeValueAsString(mapToSyncDto(compensationAggregate)))
         }
-        employee.state = AggregateState.PENDING
-        val savedEmployee = employeeRepository.save(employee)
+        aggregate.state = AggregateState.PENDING
+        val savedEmployee = employeeRepository.save(aggregate)
         variablesMap = variablesMap.plus("employee" to objectMapper.writeValueAsString(mapToSyncDto(savedEmployee)))
         workflowService.createWorkflowInstance(variablesMap, "synchronize-employee")
         return savedEmployee
     }
 
-    fun mapToSyncDto(employee: Employee): EmployeeSyncDto {
+    override fun mapToSyncDto(employee: Employee): EmployeeSyncDto {
         return EmployeeSyncDto(employee.id!!, employee.firstname, employee.lastname, employee.address, employee.mail, employee.iban, employee.department, employee.title, employee.hourlyRate, employee.deleted, employee.state)
     }
 
-    fun mapToDto(employee: Employee): EmployeeDto {
+    override fun mapToDto(employee: Employee): EmployeeDto {
         return EmployeeDto(employee.id!!, employee.firstname, employee.lastname, employee.address, employee.mail, employee.iban, employee.department, employee.title, employee.hourlyRate, employee.state)
     }
 
@@ -53,7 +53,7 @@ class EmployeeService(
 
     fun createEmployee(employeeDto: EmployeeDto): EmployeeDto {
         val employee = Employee(null, employeeDto.firstname, employeeDto.lastname, employeeDto.address, employeeDto.mail, employeeDto.iban, employeeDto.department, employeeDto.title, employeeDto.hourlyRate)
-        return mapToDto(saveEmployeeWithWorkflow(employee, null))
+        return mapToDto(saveAggregateWithWorkflow(employee, null))
     }
 
     /**
@@ -79,14 +79,14 @@ class EmployeeService(
         if (employee.department != employeeDto.department) {
             employee.movesToDepartment(employeeDto.department)
         }
-        return mapToDto(saveEmployeeWithWorkflow(employee, compensationEmployee))
+        return mapToDto(saveAggregateWithWorkflow(employee, compensationEmployee))
     }
 
     fun deleteEmployee(id: Long): EmployeeDto {
         val employee = employeeRepository.findByIdAndDeletedFalse(id).orElseThrow()
         val compensationEmployee = employee.copy()
         employee.deleteAggregate()
-        return mapToDto(saveEmployeeWithWorkflow(employee, compensationEmployee))
+        return mapToDto(saveAggregateWithWorkflow(employee, compensationEmployee))
     }
 
 }
