@@ -10,7 +10,7 @@ import javax.persistence.*
  */
 @Entity
 data class WorktimeEmployee(
-        @Id @GeneratedValue var id: Long?,
+        @Id @GeneratedValue(strategy = GenerationType.AUTO, generator = "worktime_seq") var id: Long?,
         val employeeId: Long,
         var firstname: String,
         var lastname: String,

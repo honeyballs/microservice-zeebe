@@ -1,0 +1,17 @@
+spring:
+
+  datasource:
+    url: jdbc:postgresql://db:5432/postgres
+    username: postgres
+    password: passwort
+
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        default_schema: project
+
+server:
+  port: 8086

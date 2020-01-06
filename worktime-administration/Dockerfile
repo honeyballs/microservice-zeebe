@@ -20,6 +20,7 @@ WORKDIR /usr/src/app
 
 EXPOSE 8087
 
+ENV SPRING_PROFILES_ACTIVE prod
 ENV ZEEBE_URL host.docker.internal:26500
 
 CMD ["java", "-jar", "app.jar"]

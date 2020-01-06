@@ -13,7 +13,7 @@ import javax.persistence.*
  */
 @Entity
 data class WorktimeProject(
-        @Id @GeneratedValue var id: Long?,
+        @Id @GeneratedValue(strategy = GenerationType.AUTO, generator = "worktime_seq") var id: Long?,
         val projectId: Long,
         val name: String,
         @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = datePattern) val startDate: LocalDate,

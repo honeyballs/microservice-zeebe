@@ -3,15 +3,14 @@ package com.example.projectadministration.model
 import com.fasterxml.jackson.annotation.JsonSubTypes
 import com.fasterxml.jackson.annotation.JsonTypeInfo
 import com.fasterxml.jackson.annotation.JsonTypeName
-import javax.persistence.GeneratedValue
-import javax.persistence.Id
-import javax.persistence.MappedSuperclass
+import javax.persistence.*
 
 /**
  * Aggregate super class containing common aggregate fields and functions.
  */
 @MappedSuperclass
-abstract class Aggregate(@Id @GeneratedValue var id: Long?, var state: AggregateState = AggregateState.PENDING, var deleted: Boolean = false) {
+@SequenceGenerator(name = "project_seq", sequenceName = "project_id_sequence")
+abstract class Aggregate(@Id @GeneratedValue(strategy = GenerationType.AUTO, generator = "project_seq") var id: Long?, var state: AggregateState = AggregateState.PENDING, var deleted: Boolean = false) {
 
     fun changeAggregateState(state: AggregateState) {
         this.state = state
