@@ -1,6 +1,8 @@
 package com.example.employeeadministration.config
 
+import com.example.employeeadministration.jobhandlers.DepartmentJobHandlers
 import com.example.employeeadministration.jobhandlers.EmployeeJobHandlers
+import com.example.employeeadministration.jobhandlers.PositionJobHandlers
 import io.zeebe.client.ZeebeClient
 import io.zeebe.client.api.worker.JobHandler
 import io.zeebe.client.api.worker.JobWorker
@@ -22,9 +24,15 @@ class JobWorkerCreation {
     @Autowired
     lateinit var handlers: EmployeeJobHandlers
 
+    @Autowired
+    lateinit var departmentHandlers: DepartmentJobHandlers
+
+    @Autowired
+    lateinit var positionJobHandlers: PositionJobHandlers
+
     @Bean
     fun setEmployeeActiveWorker(): JobWorker {
-        println("Activation Worker created")
+        println("Employee Activation Worker created")
         return client.newWorker()
                 .jobType("activate-employee")
                 .handler(JobHandler(handlers.activateEmployee))
@@ -34,7 +42,7 @@ class JobWorkerCreation {
 
     @Bean
     fun setEmployeeFailedWorker(): JobWorker {
-        println("Failure Worker created")
+        println("Employee Failure Worker created")
         return client.newWorker()
                 .jobType("compensate-employee")
                 .handler(JobHandler(handlers.compensateEmployee))
@@ -42,4 +50,43 @@ class JobWorkerCreation {
                 .open()
     }
 
+    @Bean
+    fun setDepartmentActiveWorker(): JobWorker {
+        println("Department Activation Worker created")
+        return client.newWorker()
+                .jobType("activate-department")
+                .handler(JobHandler(departmentHandlers.activateDepartment))
+                .fetchVariables("department")
+                .open()
+    }
+
+    @Bean
+    fun setDepartmentFailedWorker(): JobWorker {
+        println("Department Failure Worker created")
+        return client.newWorker()
+                .jobType("compensate-department")
+                .handler(JobHandler(departmentHandlers.compensateDepartment))
+                .fetchVariables("department", "compensationDepartment")
+                .open()
+    }
+
+    @Bean
+    fun setPositionActiveWorker(): JobWorker {
+        println("Position Activation Worker created")
+        return client.newWorker()
+                .jobType("activate-position")
+                .handler(JobHandler(positionJobHandlers.activatePosition))
+                .fetchVariables("position")
+                .open()
+    }
+
+    @Bean
+    fun setPositionFailedWorker(): JobWorker {
+        println("Position Failure Worker created")
+        return client.newWorker()
+                .jobType("compensate-position")
+                .handler(JobHandler(positionJobHandlers.compensatePosition))
+                .fetchVariables("position", "compensationPosition")
+                .open()
+    }
 }

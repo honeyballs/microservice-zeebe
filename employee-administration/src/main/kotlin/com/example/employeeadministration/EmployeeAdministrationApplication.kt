@@ -1,14 +1,7 @@
 package com.example.employeeadministration
 
-import com.example.employeeadministration.model.Employee
-import com.example.employeeadministration.services.EmployeeService
-import com.example.employeeadministration.services.WorkflowService
-import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.boot.CommandLineRunner
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.runApplication
-import org.springframework.context.annotation.Bean
-import java.math.BigDecimal
 
 @SpringBootApplication
 class EmployeeAdministrationApplication {

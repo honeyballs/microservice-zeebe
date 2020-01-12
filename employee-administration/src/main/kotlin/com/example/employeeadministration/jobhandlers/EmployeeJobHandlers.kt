@@ -1,15 +1,20 @@
 package com.example.employeeadministration.jobhandlers
 
-import com.example.employeeadministration.model.AggregateState
-import com.example.employeeadministration.model.Employee
-import com.example.employeeadministration.model.dto.EmployeeSyncDto
+import com.example.employeeadministration.model.aggregates.AggregateState
+import com.example.employeeadministration.model.dto.DepartmentSync
+import com.example.employeeadministration.model.dto.EmployeeSync
+import com.example.employeeadministration.repositories.DepartmentRepository
 import com.example.employeeadministration.repositories.EmployeeRepository
+import com.example.employeeadministration.repositories.PositionRepository
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 import io.zeebe.client.api.response.ActivatedJob
 import io.zeebe.client.api.worker.JobClient
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Component
+import org.springframework.stereotype.Service
+import org.springframework.transaction.UnexpectedRollbackException
+import org.springframework.transaction.annotation.Transactional
 
 
 /**
@@ -27,14 +32,12 @@ class EmployeeJobHandlers {
     lateinit var mapper: ObjectMapper
 
     @Autowired
-    lateinit var employeeRepository: EmployeeRepository
+    lateinit var employeeSyncTransactionService: EmployeeSyncTransactionService
 
-    val activateEmployee: (JobClient, ActivatedJob) -> Unit = {jobClient: JobClient, job: ActivatedJob ->
+    val activateEmployee: (JobClient, ActivatedJob) -> Unit = { jobClient: JobClient, job: ActivatedJob ->
         println("EXECUTING ACTIVATION JOB")
-        val employeeId = mapper.readValue<EmployeeSyncDto>(job.variablesAsMap["employee"] as String).id
-        val employee = employeeRepository.findById(employeeId).orElseThrow()
-        employee.state = AggregateState.ACTIVE
-        employeeRepository.save(employee)
+        val employeeId = mapper.readValue<EmployeeSync>(job.variablesAsMap["employee"] as String).id
+        employeeSyncTransactionService.handleActivation(employeeId)
         jobClient.newCompleteCommand(job.key)
                 .send()
                 .join()
@@ -43,17 +46,46 @@ class EmployeeJobHandlers {
     val compensateEmployee: (JobClient, ActivatedJob) -> Unit = { jobClient: JobClient, job: ActivatedJob ->
         println("EXECUTING COMPENSATION JOB")
         val variables = job.variablesAsMap
-        val employeeId = mapper.readValue<EmployeeSyncDto>(job.variablesAsMap["employee"] as String).id
+        val employeeId = mapper.readValue<EmployeeSync>(job.variablesAsMap["employee"] as String).id
         if (variables.containsKey("compensationEmployee")) {
-            val compensationEmployee = mapper.readValue<EmployeeSyncDto>(variables["compensationEmployee"] as String)
+            employeeSyncTransactionService.handleCompensation(employeeId, mapper.readValue<EmployeeSync>(variables["compensationEmployee"] as String))
+        } else {
+            employeeSyncTransactionService.handleCompensation(employeeId, null)
+        }
+        jobClient.newCompleteCommand(job.key)
+                .send()
+                .join()
+    }
+
+}
+
+@Service
+class EmployeeSyncTransactionService(
+        val employeeRepository: EmployeeRepository,
+        val departmentRepository: DepartmentRepository,
+        val positionRepository: PositionRepository
+): SyncService<EmployeeSync> {
+
+    @Transactional
+    @Throws(UnexpectedRollbackException::class, Exception::class)
+    override fun handleActivation(employeeId: Long) {
+        val employee = employeeRepository.findById(employeeId).orElseThrow()
+        employee.state = AggregateState.ACTIVE
+        employeeRepository.save(employee)
+    }
+
+    @Transactional
+    @Throws(UnexpectedRollbackException::class, Exception::class)
+    override fun handleCompensation(employeeId: Long, compensationEmployee: EmployeeSync?) {
+        if (compensationEmployee != null) {
             employeeRepository.findById(employeeId).ifPresent {
                 it.firstname = compensationEmployee.firstname
                 it.lastname = compensationEmployee.lastname
                 it.address = compensationEmployee.address
-                it.iban = compensationEmployee.iban
-                it.mail = compensationEmployee.mail
-                it.department = compensationEmployee.department
-                it.title = compensationEmployee.title
+                it.bankDetails = compensationEmployee.bankDetails
+                it.companyMail = compensationEmployee.companyMail!!
+                it.department = departmentRepository.findById(compensationEmployee.department).orElseThrow()
+                it.position = positionRepository.findById(compensationEmployee.position).orElseThrow()
                 it.hourlyRate = compensationEmployee.hourlyRate
                 it.deleted = compensationEmployee.deleted
                 it.state = AggregateState.ACTIVE
@@ -64,12 +96,7 @@ class EmployeeJobHandlers {
                 employeeRepository.deleteById(employeeId)
             }
         }
-        jobClient.newCompleteCommand(job.key)
-                .send()
-                .join()
     }
-
-
 }
 
 

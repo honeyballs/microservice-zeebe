@@ -1,6 +1,5 @@
 package com.example.employeeadministration.services
 
-import com.example.employeeadministration.model.Aggregate
 import io.zeebe.client.ZeebeClient
 import org.springframework.stereotype.Service
 

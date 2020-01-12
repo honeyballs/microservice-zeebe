@@ -1,10 +1,9 @@
 package com.example.projectadministration.repositories
 
-import com.example.projectadministration.model.Project
-import com.example.projectadministration.model.employee.ProjectEmployee
+import com.example.projectadministration.model.aggregates.Project
+import com.example.projectadministration.model.employee.Employee
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.stereotype.Repository
-import java.time.LocalDate
 import java.util.*
 
 /**
@@ -13,9 +12,11 @@ import java.util.*
 @Repository
 interface ProjectRepository: JpaRepository<Project, Long> {
 
-    fun findAllByDeletedFalse(): List<Project>
-    fun findByIdAndDeletedFalse(id: Long): Optional<Project>
-    fun findAllByEmployeesContainingAndDeletedFalse(employee: ProjectEmployee): List<Project>
-    fun findAllByEndDateNotNullAndDeletedFalse(): List<Project>
+    fun getAllByDeletedFalse(): List<Project>
+    fun getByIdAndDeletedFalse(id: Long): Optional<Project>
+    fun getAllByCustomerIdAndDeletedFalse(id: Long): List<Project>
+    fun getAllByEmployeesContainingAndDeletedFalse(employee: Employee): List<Project>
+    fun getAllByEndDateNotNullAndDeletedFalse(): List<Project>
+    fun getAllByEndDateNullAndDeletedFalse(): List<Project>
 
 }

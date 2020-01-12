@@ -22,6 +22,8 @@ class ZeebeWorkflowDeployment {
         return CommandLineRunner {
             val deploymentEvent = client.newDeployCommand()
                     .addResourceFromClasspath("synchronize-employee.bpmn")
+                    .addResourceFromClasspath("synchronize-department.bpmn")
+                    .addResourceFromClasspath("synchronize-position.bpmn")
                     .send()
                     .join()
             println("Workflows deployed")

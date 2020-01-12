@@ -1,6 +1,6 @@
 package com.example.employeeadministration.repositories
 
-import com.example.employeeadministration.model.Employee
+import com.example.employeeadministration.model.aggregates.Employee
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.stereotype.Repository
 import java.util.*
@@ -11,8 +11,10 @@ import java.util.*
 @Repository
 interface EmployeeRepository: JpaRepository<Employee, Long> {
 
-    fun findByIdAndDeletedFalse(id: Long): Optional<Employee>
-    fun findAllByDeletedFalse(): List<Employee>
-    fun findByDepartmentAndDeletedFalse(department: String): List<Employee>
+    fun getAllByDeletedFalse(): List<Employee>
+    fun getAllByDepartment_IdAndDeletedFalse(departmendId: Long): List<Employee>
+    fun getAllByPosition_IdAndDeletedFalse(positionId: Long): List<Employee>
+    fun getAllByFirstnameContainingAndLastnameContainingAndDeletedFalse(firstname: String, lastname: String): List<Employee>
+    fun getByIdAndDeletedFalse(id: Long): Optional<Employee>
 
 }

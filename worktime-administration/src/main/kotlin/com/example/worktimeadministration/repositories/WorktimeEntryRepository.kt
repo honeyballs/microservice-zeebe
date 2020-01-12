@@ -1,6 +1,6 @@
 package com.example.worktimeadministration.repositories
 
-import com.example.worktimeadministration.model.WorktimeEntry
+import com.example.worktimeadministration.model.aggregates.WorktimeEntry
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.stereotype.Repository
 import java.util.*
@@ -11,9 +11,12 @@ import java.util.*
 @Repository
 interface WorktimeEntryRepository: JpaRepository<WorktimeEntry, Long> {
 
+
     fun findAllByDeletedFalse(): List<WorktimeEntry>
     fun findByIdAndDeletedFalse(id: Long): Optional<WorktimeEntry>
-    fun findAllByEmployee_EmployeeIdAndDeletedFalse(employeeId: Long): List<WorktimeEntry>
-    fun findAllByProject_ProjectIdAndDeletedFalse(projectId: Long): List<WorktimeEntry>
+    fun findAllByProjectProjectIdAndDeletedFalse(id: Long): List<WorktimeEntry>
+    fun findAllByEmployeeEmployeeIdAndDeletedFalse(id: Long): List<WorktimeEntry>
+    fun findAllByProjectProjectIdAndEmployeeEmployeeIdAndDeletedFalse(projectId: Long, employeeId: Long): List<WorktimeEntry>
+
 
 }
